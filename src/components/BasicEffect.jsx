@@ -8,7 +8,9 @@ const BasicEffect = () => {
   },[])
 
   return (
-    <div>BasicEffect</div>
+    <div>
+      <h1>Check the console to see the message</h1>
+    </div>
   )
 }
 

@@ -1,5 +1,4 @@
-import React from 'react'
-import { useState, useEffect } from "react";
+import React, { useReducer, useState, useEffect, createContext, useRef } from "react";
 import "./index.css";
 // in the terminal: npm install react-icons --save
 import { FaCartArrowDown } from "react-icons/fa";
@@ -41,6 +40,17 @@ import CopyInput from './components/CopyInput.jsx';
 import Switcher from './components/Switcher.jsx';
 import Test from './components/Test.jsx';
 import BasicEffect from './components/BasicEffect.jsx';
+import CounterEffect from './components/CounterEffect.jsx';
+import FetchDataEffect from './components/FetchDataEffect.jsx';
+import ComponentA from './components/Prop Drilling/ComponentA.jsx';
+import { UserProvider } from "./components/UseContext/UserContext.jsx";
+import UserProfile from "./components/UseContext/UserProfile.jsx";
+import UpdateUser from "./components/UseContext/UpdateUser.jsx";
+import Counter from "./components/UseReducer/Counter.jsx";
+import FocusInput from "./components/useRef/FocusInput.jsx";
+import Timer from "./components/useRef/Timer.jsx";
+
+
 
 const Button = () => {
   const handleClick = () => console.log(Math.round(Math.random() * 10))
@@ -78,6 +88,29 @@ const Move = () => {
   );
 }
 
+export const Data = createContext();
+
+export const Data1 = createContext();
+
+// useReducer
+const initialState = {count: 0};
+
+// state: what we are updating | action: how we are going to update it.
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "increment":
+      return {...state, count:state.count + 1};
+
+    case "decrement":
+      return {...state, count:state.count - 1};
+
+    case "reset":
+      return {...state, count: 0};
+  
+    default:
+      return state;
+  }
+}
 
 function App() {
   const [count, setCount] = useState(0);
@@ -115,6 +148,31 @@ function App() {
     );
   }
 
+  // Context API
+  const name = "Messi";
+  const age = 22;
+
+  // useReducer
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  // useRef
+  const inputElement = useRef(null);
+
+  // console.log(inputElement);
+
+  const focusInput = () => {
+    inputElement.current.focus();
+    inputElement.current.value = "Xander";
+  }
+
+  // Fetching Data with useEffect : Custom Hooks
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/todos')
+      .then((response) => response.json())
+      .then((json) => setData(json));
+  },[]);
 
   return(
     <div>
@@ -228,6 +286,45 @@ function App() {
       </section>
       <section>
         <BasicEffect />
+        <CounterEffect />
+        <FetchDataEffect />
+      </section>
+      <section>
+        <Data.Provider value={name} >
+          <Data1.Provider value={age} >
+              <ComponentA />
+          </Data1.Provider>
+        </Data.Provider>
+      </section>
+      <section>
+        <UserProvider>
+          <UserProfile />
+          <UpdateUser />
+        </UserProvider>
+        <div>
+          <h1>useReducer Situations with this Count example: {state.count}. </h1>
+          <button onClick={() => dispatch({ type: "decrement"})} >-</button>
+          <button onClick={() => dispatch({ type: "reset"})} >reset</button>
+          <button onClick={() => dispatch({ type: "increment"})} >+</button>
+        </div>
+      </section>
+      <section>
+        <Counter />
+      </section>
+      <section>
+        <input type="text" ref={inputElement} />
+
+        <button onClick={() => focusInput()}>Focus & Write Xander</button>
+      </section>
+
+      <section>
+        <FocusInput />
+        <Timer />
+      </section>
+      <section>
+        {data && data.map((item) => {
+          return <p key={item.id}>{item.title}</p>;
+        })}
       </section>
     </div>
   );
